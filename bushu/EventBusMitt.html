@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mitt Component Communication</title>
+    <!-- 引入Vue3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <!-- 引入mitt事件总线 -->
+    <script src="https://unpkg.com/mitt/dist/mitt.umd.js"></script>
+</head>
+
+<body>
+    <!-- 赵津念 229970442 -->
+    <div id="app"></div>
+    <!-- 父组件模板 -->
+    <template id="root">
+        <div>
+            <h2>父组件</h2>
+            <!-- 显示接收到的消息 -->
+            <p>接收到的消息: {{message}}</p>
+            <!-- 两个子组件 -->
+            <component-a></component-a>
+            <component-b></component-b>
+        </div>
+    </template>
+
+    <!-- 组件A的模板 -->
+    <template id="componentA">
+        <div>
+            <h3>组件A</h3>
+            <button @click="sendMessage">发送消息到组件B</button>
+        </div>
+    </template>
+
+    <!-- 组件B的模板 -->
+    <template id="componentB">
+        <div>
+            <h3>组件B</h3>
+            <button @click="sendMessage">发送消息到组件A</button>
+        </div>
+    </template>
+
+    <script>
+        // 229970442 赵津念
+        // 创建mitt事件总线实例
+        const emitter = mitt();
+
+        // 创建Vue应用
+        const app = Vue.createApp({
+            template: '#root',
+            data() {
+                return {
+                    message: '等待消息...'
+                }
+            },
+            // 在组件挂载时监听消息
+            mounted() {
+                // 监听来自组件A的消息
+                emitter.on('message-from-a', (data) => {
+                    this.message = `来自组件A的消息: ${data}`;
+                });
+                // 监听来自组件B的消息
+                emitter.on('message-from-b', (data) => {
+                    this.message = `来自组件B的消息: ${data}`;
+                });
+            },
+            // 在组件卸载时移除监听器
+            unmounted() {
+                emitter.off('message-from-a');
+                emitter.off('message-from-b');
+            }
+        });
+
+        // 注册组件A
+        app.component('component-a', {
+            template: '#componentA',
+            methods: {
+                sendMessage() {
+                    // 通过mitt发送消息
+                    emitter.emit('message-from-a', 'Hello from Component A!');
+                }
+            }
+        });
+
+        // 注册组件B
+        app.component('component-b', {
+            template: '#componentB',
+            methods: {
+                sendMessage() {
+                    // 通过mitt发送消息
+                    emitter.emit('message-from-b', 'Hello from Component B!');
+                }
+            }
+        });
+
+        // 挂载应用
+        app.mount('#app');
+    </script>
+</body>
+
+</html>
