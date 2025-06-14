@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vue Login with Animation</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+   <!-- 229970442 赵津念 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+  <style>
+   .login-container {
+      width: 300px;
+      margin: 100px auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+   .login-form {
+      display: flex;
+      flex-direction: column;
+    }
+
+   .login-form label {
+      margin-bottom: 5px;
+    }
+
+   .login-form input {
+      padding: 8px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+    }
+
+   .login-form button {
+      padding: 10px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    h2{
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- 赵津念 229970442 -->
+  <div id="app"></div>
+  <template id="root">
+    <!-- 使用animate.css的动画类，这里以淡入效果为例 -->
+    <div class="login-container animate__animated animate__fadeIn">
+      <h2>登录页面</h2>
+      <form class="login-form">
+        <label for="username">用户名:</label>
+        <input type="text" id="username" placeholder="请输入你的用户名">
+        <label for="password">密码:</label>
+        <input type="password" id="password" placeholder="请输入你的密码">
+        <button type="submit">登录</button>
+      </form>
+    </div>
+  </template>
+  <script>
+    const app = Vue.createApp({
+      template: '#root'
+    });
+    app.mount('#app');
+  </script>
+</body>
+
+</html>
