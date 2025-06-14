@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>任务清单</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+    h1 {
+      color: #2c3e50;
+      text-align: center;
+    }
+    .input-container {
+      display: flex;
+      margin-bottom: 20px;
+    }
+    input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+    button {
+      padding: 10px 15px;
+      margin-left: 10px;
+      background-color: #42b983;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover {
+      background-color: #369f6e;
+    }
+    .task-section {
+      background-color: white;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .task-section h2 {
+      margin-top: 0;
+      color: #2c3e50;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 10px;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      padding: 10px;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    li:last-child {
+      border-bottom: none;
+    }
+    .task-actions button {
+      margin-left: 5px;
+      padding: 5px 10px;
+      font-size: 14px;
+    }
+    .complete-btn {
+      background-color: #42b983;
+    }
+    .delete-btn {
+      background-color: #e74c3c;
+    }
+    .clear-btn {
+      background-color: #e74c3c;
+      width: 100%;
+    }
+    .completed {
+      text-decoration: line-through;
+      color: #95a5a6;
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+  <!-- 229970442 赵津念 -->
+  <template id="root">
+    <div>
+      <h1>任务清单</h1>
+      <div class="input-container">
+        <input 
+          type="text" 
+          placeholder="请输入新任务" 
+          v-model="newTask" 
+          @keyup.enter="addTask"
+        >
+        <button @click="addTask">添加</button>
+      </div>
+      
+      <task-list 
+        title="待完成" 
+        :tasks="pendingTasks"
+        @complete="completeTask"
+        @delete="deleteTask"
+      ></task-list>
+      
+      <task-list 
+        title="已完成" 
+        :tasks="completedTasks"
+        @complete="completeTask"
+        @delete="deleteTask"
+      ></task-list>
+      
+      <button 
+        class="clear-btn" 
+        @click="clearAllTasks"
+        v-if="tasks.length > 0"
+      >
+        清空所有任务
+      </button>
+    </div>
+  </template>
+  
+  <!-- 229970442 赵津念 -->
+  <template id="task-list">
+    <div class="task-section" v-if="tasks.length > 0">
+      <h2>{{ title }} ({{ tasks.length }})</h2>
+      <ul>
+        <li 
+          v-for="(task, index) in tasks" 
+          :key="task.id"
+          :class="{ completed: task.completed }"
+        >
+          <span>{{ task.text }}</span>
+          <div class="task-actions">
+            <button 
+              class="complete-btn" 
+              @click="$emit('complete', task.id)"
+            >
+              {{ task.completed ? '标记未完成' : '标记完成' }}
+            </button>
+            <button 
+              class="delete-btn" 
+              @click="$emit('delete', task.id)"
+            >
+              删除
+            </button>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </template>
+  
+  <script>
+    const { ref, computed } = Vue;
+    
+    const app = Vue.createApp({
+      template: '#root',
+      setup() {
+        const newTask = ref('');
+        const tasks = ref([]);
+        let nextId = 1;
+        // 229970442 赵津念
+        const pendingTasks = computed(() => 
+          tasks.value.filter(task => !task.completed)
+        );
+        
+        const completedTasks = computed(() => 
+          tasks.value.filter(task => task.completed)
+        );
+        
+        const addTask = () => {
+          if (newTask.value.trim()) {
+            tasks.value.push({
+              id: nextId++,
+              text: newTask.value.trim(),
+              completed: false
+            });
+            newTask.value = '';
+          }
+        };
+        
+        const completeTask = (id) => {
+          const task = tasks.value.find(task => task.id === id);
+          if (task) {
+            task.completed = !task.completed;
+          }
+        };
+        
+        const deleteTask = (id) => {
+          tasks.value = tasks.value.filter(task => task.id !== id);
+        };
+        
+        const clearAllTasks = () => {
+          tasks.value = [];
+        };
+        
+        return {
+          newTask,
+          tasks,
+          pendingTasks,
+          completedTasks,
+          addTask,
+          completeTask,
+          deleteTask,
+          clearAllTasks
+        };
+      }
+    });
+    
+    // 229970442 赵津念
+    app.component('task-list', {
+      template: '#task-list',
+      props: {
+        title: {
+          type: String,
+          required: true
+        },
+        tasks: {
+          type: Array,
+          required: true
+        }
+      }
+    });
+    
+    app.mount('#app');
+  </script>
+</body>
+</html>
